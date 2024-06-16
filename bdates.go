@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+// isLeapYear checks if a given year is a leap year.
+func isLeapYear(year int) bool {
+	return year%4 == 0 && (year%100 != 0 || year%400 == 0)
+}
+
 func main() {
 	// Define a flag for the timezone with a default value of "UTC"
 	tz := flag.String("tz", "UTC", "Timezone for the date calculations (e.g., 'Europe/Berlin')")
@@ -57,15 +62,26 @@ func main() {
 	// Get the current time
 	now := time.Now()
 
-	// Loop from the start date to the end date
-	for d := start; d.Before(end) || d.Equal(end); d = d.AddDate(1, 0, 0) {
-		// Check if the year is in the future
-		verb := "was"
-		if d.After(now) {
-			verb = "is"
-		}
+	// Check if the start date is February 29th
+	isStartDateLeapDay := start.Month() == time.February && start.Day() == 29
 
-		// Output the weekday for the current date
-		fmt.Printf("The birthday in the year %d %s on a %s\n", d.Year(), verb, d.Weekday())
+	// Loop from the start date to the end date
+	for d := start; !d.After(end); d = d.AddDate(1, 0, 0) {
+		// If the start date is February 29th, only print for leap years
+		if isStartDateLeapDay && isLeapYear(d.Year()) {
+			verb := "was"
+			if d.After(now) {
+				verb = "is"
+			}
+			fmt.Printf("The birthday in the year %d %s on a %s\n", d.Year(), verb, d.Weekday())
+		} else if !isStartDateLeapDay {
+			// If it's not a leap year, print the date for the same day and month as the start date
+			birthday := time.Date(d.Year(), start.Month(), start.Day(), 0, 0, 0, 0, loc)
+			verb := "was"
+			if birthday.After(now) {
+				verb = "is"
+			}
+			fmt.Printf("The birthday in the year %d %s on a %s\n", birthday.Year(), verb, birthday.Weekday())
+		}
 	}
 }
