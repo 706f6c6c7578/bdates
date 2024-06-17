@@ -66,24 +66,21 @@ func main() {
 	isStartDateLeapDay := start.Month() == time.February && start.Day() == 29
 
 	// Loop from the start date to the end date
-	for d := start; d.Year() <= end.Year(); d = d.AddDate(1, 0, 0) {
-		// If the start date is February 29th, only print for leap years
-		if isStartDateLeapDay && isLeapYear(d.Year()) {
-			verb := "was"
-			// Create a new date for the current year to compare with 'now'
-			currentYearBirthday := time.Date(d.Year(), start.Month(), start.Day(), 0, 0, 0, 0, loc)
-			if currentYearBirthday.After(now) || currentYearBirthday.Equal(now) {
-				verb = "is"
-			}
-			fmt.Printf("The birthday in the year %d %s on a %s\n", d.Year(), verb, d.Weekday())
-		} else if !isStartDateLeapDay {
-			// If it's not a leap year, print the date for the same day and month as the start date
-			birthday := time.Date(d.Year(), start.Month(), start.Day(), 0, 0, 0, 0, loc)
+	for d := start.Year(); d <= end.Year(); d++ {
+		if isStartDateLeapDay && isLeapYear(d) {
+			birthday := time.Date(d, time.February, 29, 0, 0, 0, 0, loc)
 			verb := "was"
 			if birthday.After(now) || birthday.Equal(now) {
 				verb = "is"
 			}
-			fmt.Printf("The birthday in the year %d %s on a %s\n", birthday.Year(), verb, birthday.Weekday())
+			fmt.Printf("The birthday in the year %d %s on a %s\n", d, verb, birthday.Weekday())
+		} else if !isStartDateLeapDay {
+			birthday := time.Date(d, start.Month(), start.Day(), 0, 0, 0, 0, loc)
+			verb := "was"
+			if birthday.After(now) || birthday.Equal(now) {
+				verb = "is"
+			}
+			fmt.Printf("The birthday in the year %d %s on a %s\n", d, verb, birthday.Weekday())
 		}
 	}
 }
